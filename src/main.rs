@@ -1,6 +1,10 @@
 use std::io::{self, Write};
+use std::time::UNIX_EPOCH;
+use std::time::SystemTime;
+use crate::ray::color::{color, write_col};
 
 fn main() {
+    let start = SystemTime::now().duration_since(UNIX_EPOCH).unwrap();
     let image_width = 256;
     let image_height = 256;
 
@@ -13,6 +17,7 @@ fn main() {
         io::stderr().flush().unwrap();
 
         for x in 0..image_width {
+            let col = color::new();
             let r = x as f64 / (image_width - 1) as f64;
             let g = y as f64 / (image_height - 1) as f64;
             let b = 0.0;
@@ -24,7 +29,9 @@ fn main() {
             println!("{} {} {}", ir, ig, ib);
         }
     }
-    eprint!("\rScanlines remaining: 0");
+    eprint!("\rDone!                 \n");
     io::stderr().flush().unwrap();
-    eprintln!("\nDone!")
+    let end = SystemTime::now().duration_since(UNIX_EPOCH).unwrap();
+    let time = end - start;
+    eprintln!("Took: {:?}", time)
 }
