@@ -1,6 +1,6 @@
 use nalgebra::Vector3;
 
-pub type Color = Vector3<f64>;
+pub type Color = Vector3<f32>;
 
 pub fn write_col(col: &Color) {
     let r = col.x;
