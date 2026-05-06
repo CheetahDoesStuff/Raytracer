@@ -2,7 +2,7 @@ use nalgebra::Vector3;
 
 pub type color = Vector3<f64>;
 
-fn write_col(col: &color) {
+pub fn write_col(col: &color) {
     let r = col.x;
     let g = col.y;
     let b = col.z;

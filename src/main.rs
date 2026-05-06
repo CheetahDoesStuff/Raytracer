@@ -1,7 +1,7 @@
 use std::io::{self, Write};
 use std::time::UNIX_EPOCH;
 use std::time::SystemTime;
-use crate::ray::color::{color, write_col};
+use raytracer::ray::color::{color, write_col};
 
 fn main() {
     let start = SystemTime::now().duration_since(UNIX_EPOCH).unwrap();
@@ -17,16 +17,8 @@ fn main() {
         io::stderr().flush().unwrap();
 
         for x in 0..image_width {
-            let col = color::new();
-            let r = x as f64 / (image_width - 1) as f64;
-            let g = y as f64 / (image_height - 1) as f64;
-            let b = 0.0;
-
-            let ir = (255.999 * r) as i32;
-            let ig = (255.999 * g) as i32;
-            let ib = (255.999 * b) as i32;
-
-            println!("{} {} {}", ir, ig, ib);
+            let col = color::new(x as f64 / (image_width - 1) as f64, y as f64 / (image_height - 1) as f64, 0.0);
+            write_col(&col);
         }
     }
     eprint!("\rDone!                 \n");
