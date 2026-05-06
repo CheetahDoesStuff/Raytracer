@@ -17,7 +17,7 @@ fn main() {
         io::stderr().flush().unwrap();
 
         for x in 0..image_width {
-            let col = color::new(x as f64 / (image_width - 1) as f64, y as f64 / (image_height - 1) as f64, 0.0);
+            let col = color::new(x as f64 / (image_width - 1) as f64, y as f64 / (image_height - 1) as f64, 1.0);
             write_col(&col);
         }
     }
