@@ -2,7 +2,7 @@ use f32;
 use std::io::{self, Write};
 use std::time::UNIX_EPOCH;
 use std::time::SystemTime;
-use nalgebra::{Point3, Vector3};
+use nalgebra::Vector3;
 use raytracer::ray::color::{Color, write_col};
 use raytracer::ray::ray::Ray;
 
