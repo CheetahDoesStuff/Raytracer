@@ -1,1 +1,5 @@
 /target
+
+# Stuff ppl might pipe the image to, dont want test images in the codebase
+test.ppm
+image.ppm
