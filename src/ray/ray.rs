@@ -7,10 +7,16 @@ pub struct Ray {
 
 impl Ray {
     pub fn new(a: Vector3<f32>, b: Vector3<f32>) -> Self {
-        Ray {a, b}
+        Ray { a, b }
     }
 
-    pub fn origin(&self) -> Vector3<f32> { self.a }
-    pub fn direction(&self) -> Vector3<f32> { self.b }
-    pub fn at(&self, t: f32) -> Vector3<f32> { self.a + t * self.b }
+    pub fn origin(&self) -> Vector3<f32> {
+        self.a
+    }
+    pub fn direction(&self) -> Vector3<f32> {
+        self.b
+    }
+    pub fn at(&self, t: f32) -> Vector3<f32> {
+        self.a + t * self.b
+    }
 }
