@@ -1,6 +1,7 @@
 use nalgebra::Vector3;
 
 use crate::ray::ray::Ray;
+use crate::interval::Interval;
 
 #[derive(Clone, Default)]
 pub struct HitRecord {
@@ -24,5 +25,5 @@ impl HitRecord {
 }
 
 pub trait Surface {
-    fn hit(&self, r: &Ray, ray_tmin: f32, ray_tmax: f32, rec: &mut HitRecord) -> bool;
+    fn hit(&self, r: &Ray, ray_t: Interval, rec: &mut HitRecord) -> bool;
 }

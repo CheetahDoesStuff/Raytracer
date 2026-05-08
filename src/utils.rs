@@ -1,7 +1,7 @@
 use core::f32;
 
-const INFINITY: f32 = f32::INFINITY;
-const PI: f32 = 3.1415926535897932385;
+pub const INFINITY: f32 = f32::INFINITY;
+pub const PI: f32 = 3.1415926535897932385;
 
 fn double_degrees_to_radians(degrees: f32) -> f32 {
     return degrees * PI / 180.0;

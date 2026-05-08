@@ -1,8 +1,7 @@
 use nalgebra::Vector3;
 
 use crate::{
-    ray::ray::Ray,
-    surface::surface::{HitRecord, Surface},
+    interval::Interval, ray::ray::Ray, surface::surface::{HitRecord, Surface}
 };
 
 pub struct Sphere {
@@ -20,7 +19,7 @@ impl Sphere {
 }
 
 impl Surface for Sphere {
-    fn hit(&self, ray: &Ray, ray_tmin: f32, ray_tmax: f32, rec: &mut HitRecord) -> bool {
+    fn hit(&self, ray: &Ray, ray_t: Interval, rec: &mut HitRecord) -> bool {
         let oc = self.center - ray.origin();
 
         let a = ray.direction().norm_squared();
@@ -36,10 +35,10 @@ impl Surface for Sphere {
         let sqrtd = discriminant.sqrt();
         let mut root = (h - sqrtd) / a;
 
-        if root <= ray_tmin || root >= ray_tmax {
+        if !ray_t.surrounds(root) {
             root = (h + sqrtd) / a;
 
-            if root <= ray_tmin || root >= ray_tmax {
+            if !ray_t.surrounds(root) {
                 return false;
             }
         }

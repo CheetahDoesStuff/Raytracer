@@ -1,10 +1,12 @@
 use f32;
 use nalgebra::Vector3;
+use raytracer::interval::{INTERVAL_WORLD, Interval};
 use raytracer::ray::color::{Color, write_col};
 use raytracer::ray::ray::Ray;
 use raytracer::surface::sphere::Sphere;
 use raytracer::surface::surface::{HitRecord, Surface};
 use raytracer::surface::surface_group::SurfaceGroup;
+use raytracer::utils::INFINITY;
 use std::io::{self, Write};
 use std::sync::Arc;
 use std::time::SystemTime;
@@ -13,7 +15,7 @@ use std::time::UNIX_EPOCH;
 fn ray_color(ray: &Ray, world: &dyn Surface) -> Color {
     let mut rec = HitRecord::default();
 
-    if world.hit(ray, 0.0, f32::INFINITY, &mut rec) {
+    if world.hit(ray, Interval::new(0.0, INFINITY), &mut rec) {
         return 0.5 * (rec.normal + Vector3::new(1.0, 1.0, 1.0));
     }
 
