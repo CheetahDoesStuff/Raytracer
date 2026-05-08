@@ -1,21 +1,23 @@
 use std::io::{self, Write};
 use nalgebra::Vector3;
-use crate::{interval::Interval, ray::{color::{Color, write_col}, ray::Ray}, surface::surface::{HitRecord, Surface}, utils::INFINITY};
+use crate::{interval::Interval, ray::{color::{Color, write_col}, ray::Ray}, surface::surface::{HitRecord, Surface}, utils::{INFINITY, random_f32}};
 
 pub struct Camera {
     pub aspect_ratio: f32,
     pub image_width: f32,
+    pub samples_per_pixel: f32,
 
     image_height: f32,
     center: Vector3<f32>,
     pixel00_loc: Vector3<f32>,
     pixel_delta_u: Vector3<f32>,
-    pixel_delta_v: Vector3<f32>
+    pixel_delta_v: Vector3<f32>,
+    pixel_sample_scale: f32,
 
 }
 
 impl Camera {
-    pub fn new(aspect_ratio: f32, image_width: i32) -> Self {
+    pub fn new(aspect_ratio: f32, image_width: i32, samples_per_pixel: i32) -> Self {
         let image_height = ((image_width as f32 / aspect_ratio) as i32).max(1);
         let focal_length: f32 = 1.0;
         let viewport_height: f32 = 2.0;
@@ -35,10 +37,12 @@ impl Camera {
         Camera {
             aspect_ratio: aspect_ratio, 
             image_width: image_width as f32,
+            samples_per_pixel: samples_per_pixel as f32,
 
             image_height: image_width as f32 / aspect_ratio,
             center: Vector3::new(0.0, 0.0, 0.0),
             pixel00_loc: pixel00_loc,
+            pixel_sample_scale: 1.0 / samples_per_pixel as f32,
 
             pixel_delta_u: pixel_delta_u,
             pixel_delta_v: pixel_delta_v
@@ -54,19 +58,32 @@ impl Camera {
             io::stderr().flush().unwrap();
 
             for x in 0..self.image_width as i32 {
-                let pixel_center =
-                    self.pixel00_loc + (x as f32 * self.pixel_delta_u) + (y as f32 * self.pixel_delta_v);
-                let ray_dir = pixel_center - self.center;
-                let ray = Ray::new(self.center, ray_dir);
-
-                let col = self.ray_color(&ray, &world);
-                write_col(&col);
+                let mut col = Color::new(0.0, 0.0, 0.0);
+                for _ in 0..self.samples_per_pixel as i32 {
+                    let ray = self.get_ray(x, y);
+                    col += self.ray_color(&ray, &world)
+                }
+                write_col(&(&col * self.pixel_sample_scale));
             }
         }
 
         eprint!("\rDone!                 \n");
         io::stderr().flush().unwrap();
+    }
 
+    fn get_ray(self: &Self, x: i32, y: i32) -> Ray {
+        let offset = self.sample_square();
+        let pixel_sample = self.pixel00_loc
+                            + ((x as f32 + offset.x) * self.pixel_delta_u)
+                            + ((y as f32 + offset.y) * self.pixel_delta_v);
+        let ray_origin = self.center;
+        let ray_dir = pixel_sample - ray_origin;
+        
+        Ray::new(ray_origin, ray_dir)
+    }
+
+    fn sample_square(self: &Self) -> Vector3<f32> {
+        Vector3::new(random_f32(None, None) - 0.5, random_f32(None, None) - 0.5, 0.0)
     }
 
     fn ray_color(self: &Self, ray: &Ray, world: &&dyn Surface) -> Color {

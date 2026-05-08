@@ -12,7 +12,7 @@ fn main() {
 
     let aspect_ratio: f32 = 16.0 / 9.0;
     let image_width = 400;
-    let camera = Camera::new(aspect_ratio, image_width);
+    let camera = Camera::new(aspect_ratio, image_width, 100);
 
     let mut world = SurfaceGroup::new();
     world.add(
