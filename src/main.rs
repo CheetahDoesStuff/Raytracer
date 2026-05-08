@@ -2,7 +2,6 @@ use f32;
 use nalgebra::Vector3;
 use raytracer::surface::sphere::Sphere;
 use raytracer::surface::surface_group::SurfaceGroup;
-use std::io::{self, Write};
 use std::sync::Arc;
 use std::time::SystemTime;
 use std::time::UNIX_EPOCH;
@@ -31,8 +30,6 @@ fn main() {
     );
 
     camera.render(&world);
-    eprint!("\rDone!                 \n");
-    io::stderr().flush().unwrap();
     let end = SystemTime::now().duration_since(UNIX_EPOCH).unwrap();
     let time = end - start;
     eprintln!("Took: {:?}", time)
