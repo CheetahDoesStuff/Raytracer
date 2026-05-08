@@ -23,3 +23,17 @@ pub fn random_vec(min: Option<f32>, max: Option<f32>) -> Vector3<f32> {
 
     Vector3::new(random_f32(Some(min), Some(max)), random_f32(Some(min), Some(max)), random_f32(Some(min), Some(max)))
 }
+
+pub fn random_unit_vec() -> Vector3<f32> {
+    loop {
+        let p = random_vec(Some(-1.0), Some(1.0));
+        let lensq = p.norm_squared();
+        if 1e-160 < lensq && lensq <= 1.0 { return p / f32::sqrt(lensq) }
+    }
+}
+
+pub fn random_on_hemisphere(base_vec: Vector3<f32>) -> Vector3<f32> {
+    let on_unit_sphere = random_unit_vec();
+    if on_unit_sphere.dot(&base_vec.normalize()) > 0.0 { return on_unit_sphere }
+    -on_unit_sphere
+}

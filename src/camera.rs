@@ -1,6 +1,6 @@
 use std::io::{self, Write};
 use nalgebra::Vector3;
-use crate::{interval::Interval, ray::{color::{Color, write_col}, ray::Ray}, surface::surface::{HitRecord, Surface}, utils::{INFINITY, random_f32}};
+use crate::{interval::Interval, ray::{color::{Color, write_col}, ray::Ray}, surface::surface::{HitRecord, Surface}, utils::{INFINITY, random_f32, random_on_hemisphere}};
 
 pub struct Camera {
     pub aspect_ratio: f32,
@@ -90,14 +90,14 @@ impl Camera {
         let mut rec = HitRecord::default();
 
         if world.hit(ray, Interval::new(0.0, INFINITY), &mut rec) {
-            return 0.5 * (rec.normal + Vector3::new(1.0, 1.0, 1.0));
+            let direction = random_on_hemisphere(rec.normal);
+            return 0.5 * self.ray_color(&Ray::new(rec.p, direction), world)
         }
 
         let unit_direction = ray.direction().normalize();
         let a = 0.5 * (unit_direction.y + 1.0);
-        let white = Color::new(0.5, 0.5, 1.0);
-        let sky = Color::new(0.0, 0.0, 0.8);
+        let white = Color::new(1.0, 1.0, 1.0);
+        let sky = Color::new(0.6, 0.6, 0.8);
         white * (1.0 - a) + sky * a
     }
-
 }

@@ -17,11 +17,7 @@ fn main() {
     let mut world = SurfaceGroup::new();
     world.add(
         Arc::new(
-            Sphere::new(Vector3::new(-0.2, 0.0, -1.0), 0.5)
-    ));
-    world.add(
-        Arc::new(
-            Sphere::new(Vector3::new(0.5, -0.15, -1.0), 0.3)
+            Sphere::new(Vector3::new(0.0, 0.0, -1.0), 0.5)
     ));
     world.add(
         Arc::new(
