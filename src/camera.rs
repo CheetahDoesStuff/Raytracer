@@ -89,7 +89,7 @@ impl Camera {
     fn ray_color(self: &Self, ray: &Ray, world: &&dyn Surface) -> Color {
         let mut rec = HitRecord::default();
 
-        if world.hit(ray, Interval::new(0.0, INFINITY), &mut rec) {
+        if world.hit(ray, Interval::new(0.001, INFINITY), &mut rec) {
             let direction = random_on_hemisphere(rec.normal);
             return 0.5 * self.ray_color(&Ray::new(rec.p, direction), world)
         }
