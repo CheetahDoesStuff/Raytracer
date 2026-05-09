@@ -30,10 +30,13 @@ impl Interval {
     }
 
     pub fn clamp(self: &Self, x: f32) -> f32 {
-        if x < self.min {return self.min;}
-        if x > self.max {return self.max;}
-        return x
-
+        if x < self.min {
+            return self.min;
+        }
+        if x > self.max {
+            return self.max;
+        }
+        return x;
     }
 }
 

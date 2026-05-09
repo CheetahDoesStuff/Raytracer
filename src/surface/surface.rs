@@ -1,25 +1,38 @@
+use std::sync::Arc;
+
 use nalgebra::Vector3;
 
-use crate::ray::ray::Ray;
-use crate::interval::Interval;
+use crate::{interval::Interval, ray::ray::Ray, surface::material::Material};
 
-#[derive(Clone, Default)]
+#[derive(Clone)]
 pub struct HitRecord {
     pub p: Vector3<f32>,
     pub normal: Vector3<f32>,
     pub t: f32,
+    pub front_face: bool,
+    pub mat: Option<Arc<dyn Material>>,
 }
-impl HitRecord {
-    pub fn new(p: Vector3<f32>, normal: Vector3<f32>, t: f32) -> Self {
-        HitRecord { p, normal, t }
-    }
 
-    pub fn set_face_normal(&mut self, ray: &Ray, outward_normal: &Vector3<f32>) {
-        let front_face = ray.direction().dot(outward_normal) < 0.0;
-        self.normal = if front_face {
-            *outward_normal
+impl Default for HitRecord {
+    fn default() -> Self {
+        Self {
+            p: Vector3::zeros(),
+            normal: Vector3::zeros(),
+            t: 0.0,
+            front_face: false,
+            mat: None,
+        }
+    }
+}
+
+impl HitRecord {
+    pub fn set_face_normal(&mut self, r: &Ray, outward_normal: Vector3<f32>) {
+        self.front_face = r.direction().dot(&outward_normal) < 0.0;
+
+        self.normal = if self.front_face {
+            outward_normal
         } else {
-            -*outward_normal
+            -outward_normal
         };
     }
 }

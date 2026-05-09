@@ -4,10 +4,17 @@ use crate::interval::Interval;
 
 pub type Color = Vector3<f32>;
 
+pub fn linear_to_gamma(linear_component: f32) -> f32 {
+    if linear_component > 0.0 {
+        return f32::sqrt(linear_component);
+    }
+    0.0
+}
+
 pub fn write_col(col: &Color) {
-    let r = col.x;
-    let g = col.y;
-    let b = col.z;
+    let r = linear_to_gamma(col.x);
+    let g = linear_to_gamma(col.y);
+    let b = linear_to_gamma(col.z);
 
     let intensity = Interval::new(0.000, 0.999);
     let ir = (255.999 * intensity.clamp(r)) as i32;

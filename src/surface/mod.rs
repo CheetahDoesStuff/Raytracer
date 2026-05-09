@@ -1,3 +1,3 @@
-pub mod sphere;
+pub mod material;
 pub mod surface;
-pub mod surface_group;
+pub mod surfaces;
