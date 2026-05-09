@@ -5,7 +5,7 @@ use nalgebra::Vector3;
 use crate::{
     interval::Interval,
     ray::{color::Color, ray::Ray},
-    surface::material::{Lambertian, Material},
+    surface::{material::Material, materials::lambertian::Lambertian},
 };
 
 #[derive(Clone)]
@@ -41,6 +41,6 @@ impl HitRecord {
     }
 }
 
-pub trait Surface {
+pub trait Surface: Send + Sync {
     fn hit(&self, r: &Ray, ray_t: Interval, rec: &mut HitRecord) -> bool;
 }

@@ -6,3 +6,4 @@ edition = "2024"
 [dependencies]
 nalgebra = "0.34.2"
 rand = "0.7.3"
+rayon = "1.12.0"

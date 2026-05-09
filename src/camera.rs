@@ -1,7 +1,7 @@
 use crate::{
     interval::Interval,
     ray::{
-        color::{Color, write_col},
+        color::{Color, write_col_string},
         ray::Ray,
     },
     surface::surface::{HitRecord, Surface},
@@ -9,6 +9,11 @@ use crate::{
 };
 use nalgebra::Vector3;
 use std::io::{self, Write};
+use rayon::prelude::*;
+use std::sync::atomic::{AtomicI32, Ordering};
+use std::sync::Arc;
+use std::thread;
+use std::time::Duration;
 
 pub struct Camera {
     pub aspect_ratio: f32,
@@ -62,9 +67,26 @@ impl Camera {
         let header = format!("P3\n{} {}\n255\n", self.image_width, self.image_height);
         println!("{}", header);
 
-        for y in 0..self.image_height as i32 {
-            eprint!("\rScanlines remaining: {} ", self.image_height as i32 - y);
-            io::stderr().flush().unwrap();
+        let remaining = Arc::new(AtomicI32::new(self.image_height as i32));
+        let total_height = self.image_height as i32;
+        let remaining_clone = Arc::clone(&remaining);
+        thread::spawn(move || {
+            loop {
+                let r = remaining_clone.load(Ordering::Relaxed);
+                eprint!("\rRendering scanlines: {} / {}", total_height as i32 - r, total_height);
+                io::stderr().flush().unwrap();
+                if r == 0 { break; }
+                thread::sleep(Duration::from_millis(50));
+            }
+        });
+
+        let rows: Vec<String> = (0..self.image_height as i32)
+                .into_par_iter()
+                .map(|y| {
+            let remaining = Arc::clone(&remaining);
+            remaining.fetch_sub(1, Ordering::Relaxed);
+
+            let mut row = String::new();
 
             for x in 0..self.image_width as i32 {
                 let mut col = Color::new(0.0, 0.0, 0.0);
@@ -72,12 +94,19 @@ impl Camera {
                     let ray = self.get_ray(x, y);
                     col += self.ray_color(&ray, &world, 50)
                 }
-                write_col(&(&col * self.pixel_sample_scale));
+                row.push_str(&write_col_string(&(col * self.pixel_sample_scale)));
             }
+            row
+        }).collect();
+
+        eprintln!();
+        for (i, row) in rows.into_iter().enumerate() {
+            eprint!("\rWriting scanlines: {} / {}", i + 1, total_height);
+            io::stderr().flush().unwrap();
+            print!("{}", row); 
         }
 
-        eprint!("\rDone!                 \n");
-        io::stderr().flush().unwrap();
+        eprint!("\nDone!\n");
     }
 
     fn get_ray(self: &Self, x: i32, y: i32) -> Ray {
