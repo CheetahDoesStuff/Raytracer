@@ -2,7 +2,11 @@ use std::sync::Arc;
 
 use nalgebra::Vector3;
 
-use crate::{interval::Interval, ray::ray::Ray, surface::material::Material};
+use crate::{
+    interval::Interval,
+    ray::{color::Color, ray::Ray},
+    surface::material::{Lambertian, Material},
+};
 
 #[derive(Clone)]
 pub struct HitRecord {
@@ -10,7 +14,7 @@ pub struct HitRecord {
     pub normal: Vector3<f32>,
     pub t: f32,
     pub front_face: bool,
-    pub mat: Option<Arc<dyn Material>>,
+    pub mat: Arc<dyn Material>,
 }
 
 impl Default for HitRecord {
@@ -20,7 +24,7 @@ impl Default for HitRecord {
             normal: Vector3::zeros(),
             t: 0.0,
             front_face: false,
-            mat: None,
+            mat: Arc::new(Lambertian::new(Color::new(0.0, 0.0, 0.0))),
         }
     }
 }

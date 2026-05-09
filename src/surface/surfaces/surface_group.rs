@@ -33,23 +33,14 @@ impl SurfaceGroup {
 }
 
 impl Surface for SurfaceGroup {
-    fn hit(
-        &self,
-        ray: &Ray,
-        ray_t: Interval,
-        rec: &mut HitRecord,
-    ) -> bool {
+    fn hit(&self, ray: &Ray, ray_t: Interval, rec: &mut HitRecord) -> bool {
         let mut temp_rec = HitRecord::default();
 
         let mut hit_anything = false;
         let mut closest_so_far = ray_t.max;
 
         for object in &self.objects {
-            if object.hit(
-                ray,
-                Interval::new(ray_t.min, closest_so_far),
-                &mut temp_rec,
-            ) {
+            if object.hit(ray, Interval::new(ray_t.min, closest_so_far), &mut temp_rec) {
                 hit_anything = true;
                 closest_so_far = temp_rec.t;
 

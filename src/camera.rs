@@ -5,7 +5,7 @@ use crate::{
         ray::Ray,
     },
     surface::surface::{HitRecord, Surface},
-    utils::{INFINITY, random_f32, random_on_hemisphere},
+    utils::{INFINITY, random_f32},
 };
 use nalgebra::Vector3;
 use std::io::{self, Write};
@@ -99,24 +99,18 @@ impl Camera {
         )
     }
 
-    fn ray_color(self: &Self, ray: &Ray, world: &&dyn Surface, depth: i32) -> Color {
+    fn ray_color(&self, ray: &Ray, world: &&dyn Surface, depth: i32) -> Color {
         if depth <= 0 {
             return Color::new(0.0, 0.0, 0.0);
         }
 
         let mut rec = HitRecord::default();
-
         if world.hit(ray, Interval::new(0.001, INFINITY), &mut rec) {
-            let mut scattered = Ray::new(Vector3::zeros(), Vector3::zeros());
-            let mut attenuation = Color::new(0.0, 0.0, 0.0);
-            if let Some(mat) = &rec.mat {
-                if mat.scatter(ray, &rec, &mut attenuation, &mut scattered) {
-                    return attenuation.component_mul(&self.ray_color(
-                        &scattered,
-                        world,
-                        depth - 1,
-                    ));
-                }
+            let mut scattered = Ray::new(Vector3::new(0.0, 0.0, 0.0), Vector3::new(0.0, 0.0, 0.0));
+            let mut attenuation = Color::default();
+
+            if rec.mat.scatter(ray, &rec, &mut attenuation, &mut scattered) {
+                return attenuation.component_mul(&self.ray_color(&scattered, world, depth - 1));
             }
 
             return Color::new(0.0, 0.0, 0.0);
@@ -126,6 +120,7 @@ impl Camera {
         let a = 0.5 * (unit_direction.y + 1.0);
         let white = Color::new(1.0, 1.0, 1.0);
         let sky = Color::new(0.5, 0.7, 1.0);
+
         white * (1.0 - a) + sky * a
     }
 }

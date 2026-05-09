@@ -45,3 +45,12 @@ pub fn random_on_hemisphere(base_vec: Vector3<f32>) -> Vector3<f32> {
     }
     -on_unit_sphere
 }
+
+pub fn vec_near_zero(vec: Vector3<f32>) -> bool {
+    let s = 1e-8;
+    (vec.x < s) && (vec.y < s) && (vec.z < s)
+}
+
+pub fn reflect(v: Vector3<f32>, n: Vector3<f32>) -> Vector3<f32> {
+    v - 2.0 * v.dot(&n) * n
+}
