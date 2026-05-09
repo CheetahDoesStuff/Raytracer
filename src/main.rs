@@ -2,6 +2,7 @@ use f32;
 use nalgebra::Vector3;
 use raytracer::camera::Camera;
 use raytracer::ray::color::Color;
+use raytracer::surface::material::Dielectric;
 use raytracer::surface::material::Lambertian;
 use raytracer::surface::material::Material;
 use raytracer::surface::material::Metal;
@@ -19,10 +20,10 @@ fn main() {
     let camera = Camera::new(aspect_ratio, image_width, 100);
 
     let mut world = SurfaceGroup::new();
-    let material_ground: Arc<dyn Material> = Arc::new(Lambertian::new(Color::new(0.8, 0.8, 0.4)));
+    let material_ground: Arc<dyn Material> = Arc::new(Lambertian::new(Color::new(0.8, 0.8, 0.4))); // Lambertian::new(Color::new(0.8, 0.8, 0.4))
     let material_center: Arc<dyn Material> = Arc::new(Lambertian::new(Color::new(0.2, 0.3, 0.6)));
-    let material_left: Arc<dyn Material> = Arc::new(Metal::new(Color::new(0.8, 0.8, 0.8), 0.8));
-    let material_right: Arc<dyn Material> = Arc::new(Metal::new(Color::new(0.8, 0.2, 0.8), 0.1));
+    let material_left: Arc<dyn Material> = Arc::new(Dielectric::new(1.0 / 1.33)); // Metal::new(Color::new(0.8, 0.8, 0.8), 0.8) Dielectric::new(1.5)
+    let material_right: Arc<dyn Material> = Arc::new(Metal::new(Color::new(0.8, 0.2, 0.8), 0.3));
 
     world.add(Arc::new(Sphere::new(
         Vector3::new(0.0, -100.5, -1.0),
