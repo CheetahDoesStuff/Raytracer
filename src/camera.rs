@@ -9,14 +9,11 @@ use crate::{
 };
 use nalgebra::Vector3;
 use rayon::prelude::*;
+use std::io::{self, Write};
 use std::sync::Arc;
 use std::sync::atomic::{AtomicI32, Ordering};
 use std::thread;
 use std::time::Duration;
-use std::{
-    char::decode_utf16,
-    io::{self, Write},
-};
 
 pub struct Camera {
     pub aspect_ratio: f32,
