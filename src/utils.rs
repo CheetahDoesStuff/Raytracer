@@ -61,3 +61,16 @@ pub fn refract(uv: Vector3<f32>, n: Vector3<f32>, etai_over_etat: f32) -> Vector
     let r_out_parallel = -f32::sqrt((1.0 - r_out_perp.norm_squared()).abs()) * n;
     r_out_perp + r_out_parallel
 }
+
+pub fn random_in_unit_disk() -> Vector3<f32> {
+    loop {
+        let p = Vector3::new(
+            random_f32(Some(-1.0), Some(1.0)),
+            random_f32(Some(-1.0), Some(1.0)),
+            0.0,
+        );
+        if p.norm_squared() < 1.0 {
+            return p;
+        }
+    }
+}

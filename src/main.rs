@@ -17,7 +17,7 @@ fn main() {
 
     let aspect_ratio: f32 = 16.0 / 9.0;
     let image_width = 400;
-    let camera = Camera::new(aspect_ratio, image_width, 100, 90.0);
+    let camera = Camera::new(aspect_ratio, image_width, 100, 90.0, 5.0, 1.0);
     let mut world = SurfaceGroup::new();
     let material_ground: Arc<dyn Material> = Arc::new(Lambertian::new(Color::new(0.8, 0.8, 0.4))); // Lambertian::new(Color::new(0.8, 0.8, 0.4))
     let material_center: Arc<dyn Material> = Arc::new(Lambertian::new(Color::new(0.2, 0.3, 0.6)));
