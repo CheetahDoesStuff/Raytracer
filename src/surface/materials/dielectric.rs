@@ -1,4 +1,8 @@
-use crate::{ray::{color::Color, ray::Ray}, surface::{material::Material, surface::HitRecord}, utils::{reflect, refract}};
+use crate::{
+    ray::{color::Color, ray::Ray},
+    surface::{material::Material, surface::HitRecord},
+    utils::{random_f32, reflect, refract},
+};
 
 pub struct Dielectric {
     pub refraction_index: f32,
@@ -7,6 +11,12 @@ pub struct Dielectric {
 impl Dielectric {
     pub fn new(refraction_index: f32) -> Self {
         Self { refraction_index }
+    }
+
+    fn reflectance(self: &Self, cosine: f32, refraction_index: f32) -> f32 {
+        let mut r0 = (1.0 - refraction_index) / (1.0 + refraction_index);
+        r0 = r0 * r0;
+        r0 + (1.0 - r0) * (1.0 - cosine).powi(5)
     }
 }
 
@@ -20,18 +30,21 @@ impl Material for Dielectric {
     ) -> bool {
         *attenuation = Color::new(1.0, 1.0, 1.0);
         let ri;
-        if rec.front_face { ri = 1.0 / self.refraction_index; }
-        else { ri = self.refraction_index; }
+        if rec.front_face {
+            ri = 1.0 / self.refraction_index;
+        } else {
+            ri = self.refraction_index;
+        }
 
         let unit_dir = r_in.direction().normalize();
 
         let cos_theta = -unit_dir.dot(&rec.normal).min(1.0);
-        let sin_theta = f32::sqrt(1.0 - cos_theta*cos_theta);
+        let sin_theta = f32::sqrt(1.0 - cos_theta * cos_theta);
 
-        let can_refract  = !(ri* sin_theta > 1.0);
+        let can_refract = !(ri * sin_theta > 1.0);
         let dir;
 
-        if can_refract {
+        if can_refract || (self.reflectance(cos_theta, ri) > random_f32(None, None)) {
             dir = refract(unit_dir, rec.normal, ri);
         } else {
             dir = reflect(unit_dir, rec.normal);

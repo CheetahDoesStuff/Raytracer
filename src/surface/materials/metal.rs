@@ -1,4 +1,8 @@
-use crate::{ray::{color::Color, ray::Ray}, surface::{material::Material, surface::HitRecord}, utils::{random_unit_vec, reflect}};
+use crate::{
+    ray::{color::Color, ray::Ray},
+    surface::{material::Material, surface::HitRecord},
+    utils::{random_unit_vec, reflect},
+};
 
 pub struct Metal {
     pub albedo: Color,

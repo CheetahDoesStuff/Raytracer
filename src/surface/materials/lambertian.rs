@@ -1,4 +1,8 @@
-use crate::{ray::{color::Color, ray::Ray}, surface::{material::Material, surface::HitRecord}, utils::{random_unit_vec, vec_near_zero}};
+use crate::{
+    ray::{color::Color, ray::Ray},
+    surface::{material::Material, surface::HitRecord},
+    utils::{random_unit_vec, vec_near_zero},
+};
 
 pub struct Lambertian {
     pub albedo: Color,

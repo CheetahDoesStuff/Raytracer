@@ -1,6 +1,6 @@
 use crate::{
     ray::{color::Color, ray::Ray},
-    surface::surface::HitRecord
+    surface::surface::HitRecord,
 };
 
 pub trait Material: Send + Sync {
