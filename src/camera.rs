@@ -30,7 +30,7 @@ pub struct Camera {
     pixel00_loc: Vector3<f32>,
     pixel_delta_u: Vector3<f32>,
     pixel_delta_v: Vector3<f32>,
-    pixel_sample_scale: f32
+    pixel_sample_scale: f32,
 }
 
 impl Camera {
