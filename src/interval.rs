@@ -38,6 +38,11 @@ impl Interval {
         }
         return x;
     }
+
+    pub fn expand(self: &Self, delta: f32) -> Interval {
+        let padding = delta / 2.0;
+        Interval {min: self.min - padding, max: self.max + padding}
+    }
 }
 
 pub const INTERVAL_EMPTY: Interval = Interval::new(INFINITY, -INFINITY);
