@@ -1,19 +1,19 @@
 use std::sync::Arc;
 
 use crate::{
-    interval::Interval,
-    ray::ray::Ray,
-    surface::surface::{HitRecord, Surface},
+    aabb::AABB, interval::Interval, ray::ray::Ray, surface::surface::{HitRecord, Surface}
 };
 
 pub struct SurfaceGroup {
     pub objects: Vec<Arc<dyn Surface>>,
+    bbox: AABB,
 }
 
 impl SurfaceGroup {
     pub fn new() -> Self {
         Self {
             objects: Vec::new(),
+            bbox: AABB::new_empty()
         }
     }
 
@@ -23,12 +23,13 @@ impl SurfaceGroup {
         group
     }
 
-    pub fn clear(&mut self) {
-        self.objects.clear();
+    pub fn add(&mut self, object: Arc<dyn Surface>) {
+        self.bbox = AABB::new_from_boxes(&self.bbox, object.bounding_box());
+        self.objects.push(object);
     }
 
-    pub fn add(&mut self, object: Arc<dyn Surface>) {
-        self.objects.push(object);
+    pub fn clear(&mut self) {
+        self.objects.clear();
     }
 }
 
@@ -49,5 +50,9 @@ impl Surface for SurfaceGroup {
         }
 
         hit_anything
+    }
+    
+    fn bounding_box(&self) -> &crate::aabb::AABB {
+        todo!()
     }
 }

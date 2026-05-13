@@ -1,5 +1,6 @@
 use crate::utils::INFINITY;
 
+#[derive(Clone, Copy)]
 pub struct Interval {
     pub min: f32,
     pub max: f32,
@@ -14,6 +15,18 @@ impl Interval {
         Interval {
             min: INFINITY,
             max: -INFINITY,
+        }
+    }
+
+    pub fn new_from_intervals(a: &Interval, b: &Interval) -> Interval {
+        let min;
+        let max;
+
+        if a.min <= b.min {min = a.min} else {min = b.min}
+        if a.max >= b.max {max = a.max} else {max = b.max}
+        Interval {
+            min: min,
+            max: max
         }
     }
 

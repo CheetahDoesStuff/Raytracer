@@ -3,9 +3,7 @@ use std::sync::Arc;
 use nalgebra::Vector3;
 
 use crate::{
-    interval::Interval,
-    ray::{color::Color, ray::Ray},
-    surface::{material::Material, materials::lambertian::Lambertian},
+    aabb::AABB, interval::Interval, ray::{color::Color, ray::Ray}, surface::{material::Material, materials::lambertian::Lambertian}
 };
 
 #[derive(Clone)]
@@ -43,4 +41,6 @@ impl HitRecord {
 
 pub trait Surface: Send + Sync {
     fn hit(&self, r: &Ray, ray_t: Interval, rec: &mut HitRecord) -> bool;
+    fn bounding_box(&self) -> &AABB;
+
 }
