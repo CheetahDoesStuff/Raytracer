@@ -42,5 +42,4 @@ impl HitRecord {
 pub trait Surface: Send + Sync {
     fn hit(&self, r: &Ray, ray_t: Interval, rec: &mut HitRecord) -> bool;
     fn bounding_box(&self) -> &AABB;
-
 }

@@ -1,6 +1,7 @@
 use nalgebra::Vector3;
 use crate::{interval::Interval, ray::ray::Ray};
 
+#[derive(Clone)]
 pub struct AABB {
     pub x: Interval,
     pub y: Interval,
@@ -52,6 +53,16 @@ impl AABB {
         if n == 1 {return &self.y}
         if n== 2 {return &self.z}
         return &self.x
+    }
+
+    pub fn get_longest_axis(&self) -> i8 {
+        if self.x.size() > self.y.size() {
+            if self.x.size() > self.z.size() { return 0 }
+            else { return 2 }
+        } else {
+            if self.y.size() > self.z.size() { return 1 }
+            else { return 2 }
+        }
     }
 
     pub fn hit(&self, r: &Ray, mut ray_t: Interval) -> bool {

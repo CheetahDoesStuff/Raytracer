@@ -5,7 +5,7 @@ use crate::{
 };
 
 pub struct SurfaceGroup {
-    pub objects: Vec<Arc<dyn Surface>>,
+    pub objects: Vec<Arc<dyn Surface + Send + Sync>>,
     bbox: AABB,
 }
 
@@ -17,15 +17,19 @@ impl SurfaceGroup {
         }
     }
 
-    pub fn with(object: Arc<dyn Surface>) -> Self {
+    pub fn with(object: Arc<dyn Surface + Send + Sync>) -> Self {
         let mut group = Self::new();
         group.add(object);
         group
     }
 
-    pub fn add(&mut self, object: Arc<dyn Surface>) {
+    pub fn add(&mut self, object: Arc<dyn Surface + Send + Sync>) {
         self.bbox = AABB::new_from_boxes(&self.bbox, object.bounding_box());
         self.objects.push(object);
+    }
+
+    pub fn into_objects(self) -> Vec<Arc<dyn Surface + Send + Sync>> {
+        self.objects
     }
 
     pub fn clear(&mut self) {
@@ -53,6 +57,6 @@ impl Surface for SurfaceGroup {
     }
     
     fn bounding_box(&self) -> &crate::aabb::AABB {
-        todo!()
+        &self.bbox
     }
 }
