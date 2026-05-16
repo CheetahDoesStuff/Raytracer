@@ -19,11 +19,11 @@ use crate::{
     utils::random_f32,
 };
 
-fn random_vec3(min: f32, max: f32) -> Vector3<f32> {
+fn random_vec3() -> Vector3<f32> {
     Vector3::new(
-        random_f32(Some(min), Some(max)),
-        random_f32(Some(min), Some(max)),
-        random_f32(Some(min), Some(max)),
+        random_f32(Some(0.3), Some(0.8)),
+        random_f32(Some(0.0), Some(0.3)),
+        random_f32(Some(0.5), Some(1.0)),
     )
 }
 
@@ -31,7 +31,7 @@ pub fn scene() -> (SurfaceGroup, Camera) {
     let mut world = SurfaceGroup::new();
 
     let ground_material: Arc<dyn Material> =
-        Arc::new(Lambertian::new(Color::new(0.5, 0.5, 0.5)));
+        Arc::new(Lambertian::new(Color::new(0.8, 0.5, 1.0)));
 
     world.add(Arc::new(Sphere::new(
         Vector3::new(0.0, -1000.0, 0.0),
@@ -53,8 +53,8 @@ pub fn scene() -> (SurfaceGroup, Camera) {
                 let sphere_material: Arc<dyn Material>;
 
                 if choose_mat < 0.8 {
-                    let albedo = random_vec3(0.0, 1.0)
-                        .component_mul(&random_vec3(0.0, 1.0));
+                    let albedo = random_vec3()
+                        .component_mul(&random_vec3());
 
                     sphere_material = Arc::new(Lambertian::new(albedo));
 
@@ -64,7 +64,7 @@ pub fn scene() -> (SurfaceGroup, Camera) {
                         sphere_material,
                     )));
                 } else if choose_mat < 0.95 {
-                    let albedo = random_vec3(0.5, 1.0);
+                    let albedo = random_vec3();
                     let fuzz = random_f32(Some(0.0), Some(0.5));
 
                     sphere_material = Arc::new(Metal::new(albedo, fuzz));
@@ -97,7 +97,7 @@ pub fn scene() -> (SurfaceGroup, Camera) {
     )));
 
     let material2: Arc<dyn Material> =
-        Arc::new(Lambertian::new(Color::new(0.4, 0.2, 0.1)));
+        Arc::new(Lambertian::new(Color::new(0.8, 0.0, 1.0)));
 
     world.add(Arc::new(Sphere::new(
         Vector3::new(-4.0, 1.0, 0.0),
@@ -106,7 +106,7 @@ pub fn scene() -> (SurfaceGroup, Camera) {
     )));
 
     let material3: Arc<dyn Material> =
-        Arc::new(Metal::new(Color::new(0.7, 0.6, 0.5), 0.0));
+        Arc::new(Metal::new(Color::new(0.6, 0.0, 1.0), 0.0));
 
     world.add(Arc::new(Sphere::new(
         Vector3::new(4.0, 1.0, 0.0),
@@ -117,15 +117,15 @@ pub fn scene() -> (SurfaceGroup, Camera) {
     let mut camera = Camera::new(
         16.0 / 9.0,
         1200,
-        20,
+        500,
         20.0,
         0.6,
         10.0,
     );
 
     camera.upd_pos(
-        Some(20.0),
-        Some(Vector3::new(13.0, 2.0, 3.0)),
+        Some(40.0),
+        Some(Vector3::new(13.0, 2.0, 5.0)),
         Some(Vector3::new(0.0, 0.0, 0.0)),
         Some(Vector3::new(0.0, 1.0, 0.0)),
     );

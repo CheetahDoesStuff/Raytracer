@@ -8,6 +8,7 @@ use crate::{
     utils::{INFINITY, degrees_to_radians, random_f32, random_in_unit_disk},
 };
 use nalgebra::Vector3;
+#[cfg(feature = "threaded")]
 use rayon::prelude::*;
 use std::io::{self, Write};
 use std::sync::Arc;
@@ -130,9 +131,6 @@ impl Camera {
     }
 
     pub fn render(self: &Self, world: &dyn Surface) {
-        let header = format!("P3\n{} {}\n255\n", self.image_width, self.image_height);
-        println!("{}", header);
-
         let remaining = Arc::new(AtomicI32::new(self.image_height as i32));
         let total_height = self.image_height as i32;
         let remaining_clone = Arc::clone(&remaining);
@@ -152,31 +150,57 @@ impl Camera {
             }
         });
 
-        let rows: Vec<String> = (0..self.image_height as i32)
-            .into_par_iter()
-            .map(|y| {
-                let remaining = Arc::clone(&remaining);
-                remaining.fetch_sub(1, Ordering::Relaxed);
+        let iter = 0..self.image_height as i32;
+        #[cfg(feature = "threaded")]
+        let iter = iter.into_par_iter();
 
-                let mut row = String::new();
+        let pixels: Vec<Vec<f32>> = iter.map(|y| {
+            let remaining = Arc::clone(&remaining);
+            remaining.fetch_sub(1, Ordering::Relaxed);
 
-                for x in 0..self.image_width as i32 {
-                    let mut col = Color::new(0.0, 0.0, 0.0);
-                    for _ in 0..self.samples_per_pixel as i32 {
-                        let ray = self.get_ray(x, y);
-                        col += self.ray_color(&ray, &world, 50)
-                    }
-                    row.push_str(&write_col_string(&(col * self.pixel_sample_scale)));
+            let mut row = Vec::with_capacity(self.image_width as usize * 3);
+            for x in 0..self.image_width as i32 {
+                let mut col = Color::new(0.0, 0.0, 0.0);
+                for _ in 0..self.samples_per_pixel as i32 {
+                    let ray = self.get_ray(x, y);
+                    col += self.ray_color(&ray, &world, 50);
                 }
-                row
-            })
-            .collect();
+                col *= self.pixel_sample_scale;
+                row.push(col.x);
+                row.push(col.y);
+                row.push(col.z);
+            }
+            row
+        }).collect();
 
         eprintln!();
-        for (i, row) in rows.into_iter().enumerate() {
-            eprint!("\rWriting scanlines: {} / {}", i + 1, total_height);
-            io::stderr().flush().unwrap();
-            print!("{}", row);
+        eprint!("Denoising image... ");
+        let input_img: Vec<f32> = pixels.into_iter().flatten().collect();
+        let mut output_img = vec![0.0f32; input_img.len()];
+
+        let device = oidn::Device::new();
+        oidn::RayTracing::new(&device)
+            .srgb(true)
+            .image_dimensions(self.image_width as usize, self.image_height as usize)
+            .filter(&input_img[..], &mut output_img[..])
+            .expect("OIDN filter error");
+
+        if let Err(e) = device.get_error() {
+            eprintln!("OIDN error: {}", e.1);
+        }
+        eprint!("Done!");
+        eprintln!();
+
+        println!("P3\n{} {}\n255", self.image_width as i32, self.image_height as i32);
+        for (i, chunk) in output_img.chunks(3).enumerate() {
+            if i % self.image_width as usize == 0 {
+                eprint!("\rWriting scanlines: {} / {}", i / self.image_width as usize + 1, total_height);
+                io::stderr().flush().unwrap();
+            }
+            let r = (chunk[0].clamp(0.0, 1.0).sqrt() * 255.999) as u8;
+            let g = (chunk[1].clamp(0.0, 1.0).sqrt() * 255.999) as u8;
+            let b = (chunk[2].clamp(0.0, 1.0).sqrt() * 255.999) as u8;
+            println!("{} {} {}", r, g, b);
         }
 
         eprint!("\nDone!\n");
