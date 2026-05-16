@@ -1,3 +1,5 @@
+use rand::rngs::SmallRng;
+
 use crate::{
     ray::{color::Color, ray::Ray},
     surface::{material::Material, surface::HitRecord},
@@ -16,15 +18,9 @@ impl Metal {
 }
 
 impl Material for Metal {
-    fn scatter(
-        &self,
-        r_in: &Ray,
-        rec: &HitRecord,
-        attenuation: &mut Color,
-        scattered: &mut Ray,
-    ) -> bool {
+    fn scatter(&self, r_in: &Ray, rec: &HitRecord, attenuation: &mut Color, scattered: &mut Ray, rng: &mut SmallRng) -> bool {
         let mut reflected = reflect(r_in.direction(), rec.normal);
-        reflected = reflected + (self.matte * random_unit_vec());
+        reflected = reflected + (self.matte * random_unit_vec(rng));
         *scattered = Ray::new(rec.p, reflected);
         *attenuation = self.albedo;
         scattered.direction().dot(&rec.normal) > 0.0

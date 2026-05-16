@@ -1,4 +1,5 @@
 use nalgebra::Vector3;
+use rand::rngs::SmallRng;
 use std::sync::Arc;
 
 use crate::{
@@ -19,15 +20,16 @@ use crate::{
     utils::random_f32,
 };
 
-fn random_vec3(min: f32, max: f32) -> Vector3<f32> {
+fn random_vec3(rng: &mut SmallRng, min: f32, max: f32) -> Vector3<f32> {
     Vector3::new(
-        random_f32(Some(min), Some(max)),
-        random_f32(Some(min), Some(max)),
-        random_f32(Some(min), Some(max)),
+        random_f32(rng, min, max),
+        random_f32(rng, min, max),
+        random_f32(rng, min, max),
     )
 }
 
 pub fn scene() -> (SurfaceGroup, Camera) {
+    let mut rng: SmallRng = rand::make_rng();
     let mut world = SurfaceGroup::new();
 
     let ground_material: Arc<dyn Material> =
@@ -41,20 +43,20 @@ pub fn scene() -> (SurfaceGroup, Camera) {
 
     for a in -11..11 {
         for b in -11..11 {
-            let choose_mat = random_f32(None, None);
+            let choose_mat = random_f32(&mut rng, 0.0, 1.0);
 
             let center = Vector3::new(
-                a as f32 + 0.9 * random_f32(None, None),
+                a as f32 + 0.9 * random_f32(&mut rng, 0.0, 1.0),
                 0.2,
-                b as f32 + 0.9 * random_f32(None, None),
+                b as f32 + 0.9 * random_f32(&mut rng, 0.0, 1.0),
             );
 
             if (center - Vector3::new(4.0, 0.2, 0.0)).norm() > 0.9 {
                 let sphere_material: Arc<dyn Material>;
 
                 if choose_mat < 0.8 {
-                    let albedo = random_vec3(0.0, 1.0)
-                        .component_mul(&random_vec3(0.0, 1.0));
+                    let albedo = random_vec3(&mut rng, 0.0, 1.0)
+                        .component_mul(&random_vec3(&mut rng, 0.0, 1.0));
 
                     sphere_material = Arc::new(Lambertian::new(albedo));
 
@@ -64,8 +66,8 @@ pub fn scene() -> (SurfaceGroup, Camera) {
                         sphere_material,
                     )));
                 } else if choose_mat < 0.95 {
-                    let albedo = random_vec3(0.5, 1.0);
-                    let fuzz = random_f32(Some(0.0), Some(0.5));
+                    let albedo = random_vec3(&mut rng, 0.5, 1.0);
+                    let fuzz = random_f32(&mut rng, 0.0, 0.5);
 
                     sphere_material = Arc::new(Metal::new(albedo, fuzz));
 

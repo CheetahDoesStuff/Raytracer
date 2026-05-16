@@ -1,7 +1,7 @@
 use crate::{
     interval::Interval,
     ray::{
-        color::{Color, write_col_string},
+        color::Color,
         ray::Ray,
     },
     surface::surface::{HitRecord, Surface},
@@ -10,6 +10,7 @@ use crate::{
 use nalgebra::Vector3;
 #[cfg(feature = "threaded")]
 use rayon::prelude::*;
+use rand::rngs::SmallRng;
 use std::io::{self, Write};
 use std::sync::Arc;
 use std::sync::atomic::{AtomicI32, Ordering};
@@ -98,8 +99,8 @@ impl Camera {
             pixel_delta_v: Vector3::new(0.0, 0.0, 0.0),
 
             pixel_sample_scale: 0.0,
-            defocus_angle: defocus_angle,
-            focus_dist: focus_dist,
+            defocus_angle,
+            focus_dist,
             defocus_disc_u: Vector3::new(0.0, 0.0, 0.0),
             defocus_disc_v: Vector3::new(0.0, 0.0, 0.0),
         };
@@ -158,12 +159,13 @@ impl Camera {
             let remaining = Arc::clone(&remaining);
             remaining.fetch_sub(1, Ordering::Relaxed);
 
+            let mut rng: SmallRng = rand::make_rng();
             let mut row = Vec::with_capacity(self.image_width as usize * 3);
             for x in 0..self.image_width as i32 {
                 let mut col = Color::new(0.0, 0.0, 0.0);
                 for _ in 0..self.samples_per_pixel as i32 {
-                    let ray = self.get_ray(x, y);
-                    col += self.ray_color(&ray, &world, 50);
+                    let ray = self.get_ray(x, y, &mut rng);
+                    col += self.ray_color(&ray, &world, 50, &mut rng);
                 }
                 col *= self.pixel_sample_scale;
                 row.push(col.x);
@@ -206,48 +208,47 @@ impl Camera {
         eprint!("\nDone!\n");
     }
 
-    fn get_ray(self: &Self, x: i32, y: i32) -> Ray {
-        let offset = self.sample_square();
+    fn get_ray(&self, x: i32, y: i32, rng: &mut SmallRng) -> Ray {
+        let offset = self.sample_square(rng);
         let pixel_sample = self.pixel00_loc
             + ((x as f32 + offset.x) * self.pixel_delta_u)
             + ((y as f32 + offset.y) * self.pixel_delta_v);
 
-        let ray_origin;
-        if self.defocus_angle <= 0.0 {
-            ray_origin = self.center;
+        let ray_origin = if self.defocus_angle <= 0.0 {
+            self.center
         } else {
-            ray_origin = self.sample_defocus_disk();
-        }
+            self.sample_defocus_disk(rng)
+        };
         let ray_dir = pixel_sample - ray_origin;
 
         Ray::new(ray_origin, ray_dir)
     }
 
-    fn sample_square(self: &Self) -> Vector3<f32> {
+    fn sample_square(&self, rng: &mut SmallRng) -> Vector3<f32> {
         Vector3::new(
-            random_f32(None, None) - 0.5,
-            random_f32(None, None) - 0.5,
+            random_f32(rng, -0.5, 0.5),
+            random_f32(rng, -0.5, 0.5),
             0.0,
         )
     }
 
-    fn sample_defocus_disk(self: &Self) -> Vector3<f32> {
-        let p = random_in_unit_disk();
+    fn sample_defocus_disk(&self, rng: &mut SmallRng) -> Vector3<f32> {
+        let p = random_in_unit_disk(rng);
         self.center + (p.x * self.defocus_disc_u) + (p.y * self.defocus_disc_v)
     }
 
-    fn ray_color(&self, ray: &Ray, world: &&dyn Surface, depth: i32) -> Color {
+    fn ray_color(&self, ray: &Ray, world: &&dyn Surface, depth: i32, rng: &mut SmallRng) -> Color {
         if depth <= 0 {
             return Color::new(0.0, 0.0, 0.0);
         }
 
         let mut rec = HitRecord::default();
         if world.hit(ray, Interval::new(0.001, INFINITY), &mut rec) {
-            let mut scattered = Ray::new(Vector3::new(0.0, 0.0, 0.0), Vector3::new(0.0, 0.0, 0.0));
+            let mut scattered = Ray::new(Vector3::zeros(), Vector3::zeros());
             let mut attenuation = Color::default();
 
-            if rec.mat.scatter(ray, &rec, &mut attenuation, &mut scattered) {
-                return attenuation.component_mul(&self.ray_color(&scattered, world, depth - 1));
+            if rec.mat.scatter(ray, &rec, &mut attenuation, &mut scattered, rng) {
+                return attenuation.component_mul(&self.ray_color(&scattered, world, depth - 1, rng));
             }
 
             return Color::new(0.0, 0.0, 0.0);
