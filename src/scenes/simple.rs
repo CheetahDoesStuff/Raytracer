@@ -60,7 +60,7 @@ pub fn scene() -> (SurfaceGroup, Camera) {
     #[cfg(feature = "denoise")]
     let samples = 20;
     #[cfg(not(feature = "denoise"))]
-    let samples = 500;
+    let samples = 100;
 
     let mut camera = Camera::new(
         16.0 / 9.0,
