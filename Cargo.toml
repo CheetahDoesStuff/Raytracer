@@ -4,13 +4,16 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+colored = "3.1.1"
 nalgebra = "0.34.2"
-oidn = "2.3.3"
+oidn = {version = "2.3.3", optional = true}
 rand = "0.10.1"
 rayon = { version = "1.12.0", optional = true }
 
 [features]
 threaded = ["rayon"]
+denoise = ["oidn"]
+default = ["threaded", "denoise"]
 
 [profile.samply]
 inherits = "release"
