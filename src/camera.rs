@@ -5,9 +5,11 @@ use crate::{
         ray::Ray,
     },
     surface::surface::{HitRecord, Surface},
-    utils::{INFINITY, degrees_to_radians, random_f32, random_in_unit_disk},
+    utils::{INFINITY, PI, degrees_to_radians, random_f32, random_in_unit_disk},
+    surface::texture::Texture
 };
-use nalgebra::Vector3;
+use image::RgbImage;
+use nalgebra::{Vector3};
 #[cfg(feature = "threaded")]
 use rayon::prelude::*;
 use rand::rngs::SmallRng;
@@ -22,6 +24,8 @@ pub struct Camera {
     pub image_width: f32,
     pub samples_per_pixel: f32,
     pub fov: f32,
+
+    pub background: Texture,
 
     pub lookfrom: Vector3<f32>,
     pub lookat: Vector3<f32>,
@@ -47,8 +51,8 @@ impl Camera {
         let theta = degrees_to_radians(self.fov);
         let h = (theta / 2.0).tan();
 
-        let viewport_height = 2.0 * h * self.focus_dist;
-        let viewport_width = viewport_height * (self.image_width / self.image_height);
+        let base_viewport_height = 2.0 * h;
+        let base_viewport_width = base_viewport_height * (self.image_width / self.image_height);
 
         let w = (self.lookfrom - self.lookat).normalize();
         let u = self.vup.cross(&w).normalize();
@@ -56,8 +60,8 @@ impl Camera {
 
         self.center = self.lookfrom;
 
-        let viewport_u = viewport_width * u;
-        let viewport_v = -viewport_height * v;
+        let viewport_u = base_viewport_width * self.focus_dist * u;
+        let viewport_v = -base_viewport_height * self.focus_dist * v;
 
         self.pixel_delta_u = viewport_u / self.image_width;
         self.pixel_delta_v = viewport_v / self.image_height;
@@ -87,6 +91,8 @@ impl Camera {
             samples_per_pixel: samples_per_pixel as f32,
             fov,
 
+            background: Texture::empty(1, 1),
+
             lookfrom: Vector3::new(0.0, 0.0, 0.0),
             lookat: Vector3::new(0.0, 0.0, -1.0),
             vup: Vector3::new(0.0, 1.0, 0.0),
@@ -107,6 +113,10 @@ impl Camera {
 
         cam.initialize();
         cam
+    }
+
+    pub fn set_background(&mut self, image: RgbImage) {
+        self.background = Texture::new(image);
     }
 
     pub fn upd_pos(
@@ -208,20 +218,21 @@ impl Camera {
         eprint!("\nDone!\n");
     }
 
-    fn get_ray(&self, x: i32, y: i32, rng: &mut SmallRng) -> Ray {
+    pub fn get_ray(&self, x: i32, y: i32, rng: &mut SmallRng) -> Ray {
         let offset = self.sample_square(rng);
         let pixel_sample = self.pixel00_loc
             + ((x as f32 + offset.x) * self.pixel_delta_u)
             + ((y as f32 + offset.y) * self.pixel_delta_v);
+
+        let primary_direction = (pixel_sample - self.center).normalize();
 
         let ray_origin = if self.defocus_angle <= 0.0 {
             self.center
         } else {
             self.sample_defocus_disk(rng)
         };
-        let ray_dir = pixel_sample - ray_origin;
 
-        Ray::new(ray_origin, ray_dir)
+        Ray::new_with_primary(ray_origin, pixel_sample - ray_origin, primary_direction)
     }
 
     fn sample_square(&self, rng: &mut SmallRng) -> Vector3<f32> {
@@ -235,6 +246,17 @@ impl Camera {
     fn sample_defocus_disk(&self, rng: &mut SmallRng) -> Vector3<f32> {
         let p = random_in_unit_disk(rng);
         self.center + (p.x * self.defocus_disc_u) + (p.y * self.defocus_disc_v)
+    }
+
+    fn sample_sky(&self, ray: &Ray) -> Color {
+        let dir = ray.primary_direction().normalize();
+        let theta = dir.z.atan2(dir.x);
+        let phi = dir.y.acos();
+
+        let u = (theta + PI) / (2.0 * PI);
+        let v = phi / PI;
+
+        self.background.sample_texture(u, v)
     }
 
     fn ray_color(&self, ray: &Ray, world: &&dyn Surface, depth: i32, rng: &mut SmallRng) -> Color {
@@ -254,11 +276,7 @@ impl Camera {
             return Color::new(0.0, 0.0, 0.0);
         }
 
-        let unit_direction = ray.direction().normalize();
-        let a = 0.5 * (unit_direction.y + 1.0);
-        let white = Color::new(1.0, 1.0, 1.0);
-        let sky = Color::new(0.5, 0.7, 1.0);
-
-        white * (1.0 - a) + sky * a
+        let sky = self.sample_sky(&ray);
+        sky
     }
 }

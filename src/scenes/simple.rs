@@ -1,3 +1,4 @@
+use image::open;
 use nalgebra::Vector3;
 use std::sync::Arc;
 
@@ -72,6 +73,8 @@ pub fn scene() -> (SurfaceGroup, Camera) {
         Some(Vector3::new(0.0, 0.0, -1.0)),
         Some(Vector3::new(0.0, 1.0, 0.0)),
     );
+
+    camera.set_background(open("textures/sky_1.jpg").expect("Failed to open background image, make sure you are in project root!").to_rgb8());
 
     (world, camera)
 }

@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+image = { version = "0.25.10", features = ["default-formats"] }
 nalgebra = "0.34.2"
 oidn = "2.3.3"
 rand = "0.10.1"
