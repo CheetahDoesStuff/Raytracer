@@ -149,7 +149,7 @@ impl Camera {
             loop {
                 let r = remaining_clone.load(Ordering::Relaxed);
                 eprint!(
-                    "\rRendering scanlines: {} / {}",
+                    "\rRendering scanlines: {} / {}  ",
                     total_height as i32 - r,
                     total_height
                 );
@@ -185,28 +185,35 @@ impl Camera {
             row
         }).collect();
 
-        eprintln!();
-        eprint!("Denoising image... ");
         let input_img: Vec<f32> = pixels.into_iter().flatten().collect();
-        let mut output_img = vec![0.0f32; input_img.len()];
 
+        eprintln!();
+        #[cfg(feature = "denoise")]
+        eprint!("Denoising image... ");
+        #[cfg(feature = "denoise")]
+        let mut output_img = vec![0.0f32; input_img.len()];
+        #[cfg(feature = "denoise")]
         let device = oidn::Device::new();
+        #[cfg(feature = "denoise")]
         oidn::RayTracing::new(&device)
             .srgb(true)
             .image_dimensions(self.image_width as usize, self.image_height as usize)
             .filter(&input_img[..], &mut output_img[..])
             .expect("OIDN filter error");
-
-        if let Err(e) = device.get_error() {
-            eprintln!("OIDN error: {}", e.1);
-        }
+        #[cfg(feature = "denoise")]
+        if let Err(e) = device.get_error() { eprintln!("OIDN error: {}", e.1); }
+        #[cfg(feature = "denoise")]
         eprint!("Done!");
+        #[cfg(feature = "denoise")]
         eprintln!();
+        
+        #[cfg(not(feature = "denoise"))]
+        let output_img = input_img;
 
         println!("P3\n{} {}\n255", self.image_width as i32, self.image_height as i32);
         for (i, chunk) in output_img.chunks(3).enumerate() {
             if i % self.image_width as usize == 0 {
-                eprint!("\rWriting scanlines: {} / {}", i / self.image_width as usize + 1, total_height);
+                eprint!("\rWriting scanlines: {} / {}  ", i / self.image_width as usize + 1, total_height);
                 io::stderr().flush().unwrap();
             }
             let r = (chunk[0].clamp(0.0, 1.0).sqrt() * 255.999) as u8;
