@@ -145,7 +145,7 @@ impl Camera {
         let remaining = Arc::new(AtomicI32::new(self.image_height as i32));
         let total_height = self.image_height as i32;
         let remaining_clone = Arc::clone(&remaining);
-        thread::spawn(move || {
+        let progress_thread = thread::spawn(move || {
             loop {
                 let r = remaining_clone.load(Ordering::Relaxed);
                 eprint!(
@@ -184,9 +184,9 @@ impl Camera {
             }
             row
         }).collect();
+        progress_thread.join().unwrap();
 
         let input_img: Vec<f32> = pixels.into_iter().flatten().collect();
-
         eprintln!();
         #[cfg(feature = "denoise")]
         eprint!("Denoising image... ");
