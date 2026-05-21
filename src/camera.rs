@@ -4,11 +4,9 @@ use crate::{
         color::Color,
         ray::Ray,
     },
-    surface::surface::{HitRecord, Surface},
-    utils::{INFINITY, PI, degrees_to_radians, random_f32, random_in_unit_disk},
-    surface::texture::Texture
+    surface::{surface::{HitRecord, Surface}, texture::Texture, textures::image::ImageTexture},
+    utils::{INFINITY, PI, degrees_to_radians, random_f32, random_in_unit_disk}
 };
-use image::RgbImage;
 use nalgebra::{Vector3};
 #[cfg(feature = "threaded")]
 use rayon::prelude::*;
@@ -25,7 +23,7 @@ pub struct Camera {
     pub samples_per_pixel: f32,
     pub fov: f32,
 
-    pub background: Texture,
+    pub background: Arc<dyn Texture + Send + Sync>,
 
     pub lookfrom: Vector3<f32>,
     pub lookat: Vector3<f32>,
@@ -91,7 +89,7 @@ impl Camera {
             samples_per_pixel: samples_per_pixel as f32,
             fov,
 
-            background: Texture::empty(1, 1),
+            background: Arc::new(ImageTexture::empty()),
 
             lookfrom: Vector3::new(0.0, 0.0, 0.0),
             lookat: Vector3::new(0.0, 0.0, -1.0),
@@ -115,8 +113,11 @@ impl Camera {
         cam
     }
 
-    pub fn set_background(&mut self, image: RgbImage) {
-        self.background = Texture::new(image);
+    pub fn set_background<T>(&mut self, texture: T)
+    where
+        T: Texture + Send + Sync + 'static,
+    {
+        self.background = Arc::new(texture);
     }
 
     pub fn upd_pos(
@@ -263,7 +264,7 @@ impl Camera {
         let u = (theta + PI) / (2.0 * PI);
         let v = phi / PI;
 
-        self.background.sample_texture(u, v)
+        self.background.sample(u, v)
     }
 
     fn ray_color(&self, ray: &Ray, world: &&dyn Surface, depth: i32, rng: &mut SmallRng) -> Color {

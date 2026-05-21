@@ -16,7 +16,7 @@ use crate::{
         surfaces::{
             sphere::Sphere,
             surface_group::SurfaceGroup,
-        },
+        }, textures::image::ImageTexture,
     },
     utils::random_f32,
 };
@@ -133,12 +133,12 @@ pub fn scene() -> (SurfaceGroup, Camera) {
 
     camera.upd_pos(
         Some(20.0),
-        Some(Vector3::new(13.0, 2.0, 3.0)),
+        Some(Vector3::new(13.0, 1.0, -3.0)),
         Some(Vector3::new(0.0, 0.0, 0.0)),
         Some(Vector3::new(0.0, 1.0, 0.0)),
     );
 
-    camera.set_background(open("textures/sky_1.jpg").expect("Failed to open background image, make sure you are in project root!").to_rgb8());
+    camera.set_background(ImageTexture::new(open("textures/sky_1.jpg").expect("Failed to open background image, make sure you are in project root!").to_rgb8()));
     
     (world, camera)
 }

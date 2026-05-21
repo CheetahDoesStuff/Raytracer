@@ -15,7 +15,7 @@ use crate::{
         surfaces::{
             sphere::Sphere,
             surface_group::SurfaceGroup,
-        },
+        }, textures::image::ImageTexture,
     },
 };
 
@@ -79,7 +79,7 @@ pub fn scene() -> (SurfaceGroup, Camera) {
         Some(Vector3::new(0.0, 1.0, 0.0)),
     );
 
-    camera.set_background(open("textures/sky_1.jpg").expect("Failed to open background image, make sure you are in project root!").to_rgb8());
+    camera.set_background(ImageTexture::new(open("textures/sky_1.jpg").expect("Failed to open background image, make sure you are in project root!").to_rgb8()));
 
     (world, camera)
 }
