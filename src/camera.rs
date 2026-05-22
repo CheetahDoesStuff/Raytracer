@@ -23,7 +23,7 @@ pub struct Camera {
     pub samples_per_pixel: f32,
     pub fov: f32,
 
-    pub background: Arc<dyn Texture + Send + Sync>,
+    pub skybox: Arc<dyn Texture + Send + Sync>,
 
     pub lookfrom: Vector3<f32>,
     pub lookat: Vector3<f32>,
@@ -89,7 +89,7 @@ impl Camera {
             samples_per_pixel: samples_per_pixel as f32,
             fov,
 
-            background: Arc::new(ImageTexture::empty()),
+            skybox: Arc::new(ImageTexture::empty()),
 
             lookfrom: Vector3::new(0.0, 0.0, 0.0),
             lookat: Vector3::new(0.0, 0.0, -1.0),
@@ -113,11 +113,11 @@ impl Camera {
         cam
     }
 
-    pub fn set_background<T>(&mut self, texture: T)
+    pub fn set_skybox<T>(&mut self, texture: T)
     where
         T: Texture + Send + Sync + 'static,
     {
-        self.background = Arc::new(texture);
+        self.skybox = Arc::new(texture);
     }
 
     pub fn upd_pos(
@@ -256,7 +256,7 @@ impl Camera {
         self.center + (p.x * self.defocus_disc_u) + (p.y * self.defocus_disc_v)
     }
 
-    fn sample_sky(&self, ray: &Ray) -> Color {
+    fn sample_skybox(&self, ray: &Ray) -> Color {
         let dir = ray.primary_direction().normalize();
         let theta = dir.z.atan2(dir.x);
         let phi = dir.y.acos();
@@ -264,7 +264,7 @@ impl Camera {
         let u = (theta + PI) / (2.0 * PI);
         let v = phi / PI;
 
-        self.background.sample(u, v)
+        self.skybox.sample(u, v)
     }
 
     fn ray_color(&self, ray: &Ray, world: &&dyn Surface, depth: i32, rng: &mut SmallRng) -> Color {
@@ -284,7 +284,6 @@ impl Camera {
             return Color::new(0.0, 0.0, 0.0);
         }
 
-        let sky = self.sample_sky(&ray);
-        sky
+        self.sample_skybox(&ray)
     }
 }
