@@ -16,7 +16,7 @@ use crate::{
         surfaces::{
             sphere::Sphere,
             surface_group::SurfaceGroup,
-        }, textures::image::ImageTexture,
+        }, textures::{checkered::CheckeredTexture, image::ImageTexture},
     },
     utils::random_f32,
 };
@@ -34,7 +34,7 @@ pub fn scene() -> (SurfaceGroup, Camera) {
     let mut world = SurfaceGroup::new();
 
     let ground_material: Arc<dyn Material> =
-        Arc::new(Lambertian::new(Color::new(0.5, 0.5, 0.5)));
+        Arc::new(Lambertian::new(Arc::new(CheckeredTexture::new(0.32, Color::new(0.48, 0.31, 0.6), Color::new(0.9, 0.9, 0.9)))));
 
     world.add(Arc::new(Sphere::new(
         Vector3::new(0.0, -1000.0, 0.0),
@@ -59,7 +59,7 @@ pub fn scene() -> (SurfaceGroup, Camera) {
                     let albedo = random_vec3(&mut rng, 0.0, 1.0)
                         .component_mul(&random_vec3(&mut rng, 0.0, 1.0));
 
-                    sphere_material = Arc::new(Lambertian::new(albedo));
+                    sphere_material = Arc::new(Lambertian::new_from_color(albedo));
 
                     world.add(Arc::new(Sphere::new(
                         center,
@@ -100,7 +100,7 @@ pub fn scene() -> (SurfaceGroup, Camera) {
     )));
 
     let material2: Arc<dyn Material> =
-        Arc::new(Lambertian::new(Color::new(0.4, 0.2, 0.1)));
+        Arc::new(Lambertian::new_from_color(Color::new(0.4, 0.2, 0.1)));
 
     world.add(Arc::new(Sphere::new(
         Vector3::new(-4.0, 1.0, 0.0),

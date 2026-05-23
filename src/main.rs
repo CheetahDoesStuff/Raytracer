@@ -18,7 +18,7 @@ fn main() {
     eprintln!();
 
     let start = SystemTime::now();
-    let (world, camera) = raytracer::scenes::random_balls::scene();
+    let (world, camera) = raytracer::scenes::two_big_spheres::scene();
     let world = BvhNode::new_from_list(world.into_objects());
 
     camera.render(world.as_ref());

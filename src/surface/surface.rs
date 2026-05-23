@@ -23,8 +23,10 @@ impl Default for HitRecord {
             p: Vector3::zeros(),
             normal: Vector3::zeros(),
             t: 0.0,
+            u: 0.5,
+            v: 0.5,
             front_face: false,
-            mat: Arc::new(Lambertian::new(Color::new(0.0, 0.0, 0.0))),
+            mat: Arc::new(Lambertian::new_from_color(Color::new(0.0, 0.0, 0.0))),
         }
     }
 }

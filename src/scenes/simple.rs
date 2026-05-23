@@ -23,10 +23,10 @@ pub fn scene() -> (SurfaceGroup, Camera) {
     let mut world = SurfaceGroup::new();
 
     let material_ground: Arc<dyn Material> =
-        Arc::new(Lambertian::new(Color::new(0.8, 0.8, 0.4)));
+        Arc::new(Lambertian::new_from_color(Color::new(0.8, 0.8, 0.4)));
 
     let material_center: Arc<dyn Material> =
-        Arc::new(Lambertian::new(Color::new(0.2, 0.3, 0.6)));
+        Arc::new(Lambertian::new_from_color(Color::new(0.2, 0.3, 0.6)));
 
     let material_left: Arc<dyn Material> =
         Arc::new(Dielectric::new(1.51));

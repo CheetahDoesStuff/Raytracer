@@ -9,7 +9,7 @@ use crate::{
     surface::{
         material::Material,
         surface::{HitRecord, Surface},
-    },
+    }, utils::PI,
 };
 
 pub struct Sphere {
@@ -36,6 +36,13 @@ impl Sphere {
             mat,
             bbox,
         }
+    }
+
+    pub fn get_sphere_uv(pos: Vector3<f32>) -> (f32, f32) {
+        let theta = -pos.y.acos();
+        let phi = -pos.z.atan2(pos.x) + PI;
+
+        (phi / (2.0*PI), theta / PI)
     }
 }
 
@@ -65,6 +72,7 @@ impl Surface for Sphere {
         rec.t = root;
         rec.p = ray.at(rec.t);
         let outward_normal = (rec.p - self.center) / self.radius;
+        (rec.u, rec.v) = Sphere::get_sphere_uv(outward_normal);
         rec.set_face_normal(ray, outward_normal);
         rec.mat = self.mat.clone();
         true

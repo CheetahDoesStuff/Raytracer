@@ -264,7 +264,7 @@ impl Camera {
         let u = (theta + PI) / (2.0 * PI);
         let v = phi / PI;
 
-        self.skybox.sample(u, v)
+        self.skybox.sample(u, v, dir)
     }
 
     fn ray_color(&self, ray: &Ray, world: &&dyn Surface, depth: i32, rng: &mut SmallRng) -> Color {
