@@ -11,10 +11,11 @@ use nalgebra::{Vector3};
 #[cfg(feature = "threaded")]
 use rayon::prelude::*;
 use rand::rngs::SmallRng;
-use std::io::{self, Write};
+use std::{fs::File, io::{self, Write, BufWriter}};
 use std::sync::Arc;
 use std::sync::atomic::{AtomicI32, Ordering};
 use std::thread;
+use colored::Colorize;
 use std::time::Duration;
 
 pub struct Camera {
@@ -204,26 +205,36 @@ impl Camera {
         #[cfg(feature = "denoise")]
         if let Err(e) = device.get_error() { eprintln!("OIDN error: {}", e.1); }
         #[cfg(feature = "denoise")]
-        eprint!("Done!");
+        eprint!("{}", "Done!".green());
         #[cfg(feature = "denoise")]
         eprintln!();
         
         #[cfg(not(feature = "denoise"))]
         let output_img = input_img;
 
-        println!("P3\n{} {}\n255", self.image_width as i32, self.image_height as i32);
-        for (i, chunk) in output_img.chunks(3).enumerate() {
-            if i % self.image_width as usize == 0 {
-                eprint!("\rWriting scanlines: {} / {}  ", i / self.image_width as usize + 1, total_height);
-                io::stderr().flush().unwrap();
-            }
+
+        eprint!("Writing image to disk... ");
+
+        let header = format!("P3\n{} {}\n255 \n", self.image_width as i32, self.image_height as i32);
+        let file = File::create("rendered.ppm").unwrap();
+        let mut writer = BufWriter::with_capacity(1024 * 1024, file);
+        let mut line_buffer = String::with_capacity(64);
+
+        line_buffer.push_str(&header);
+        writer.write_all(line_buffer.as_bytes()).unwrap();
+
+        for (_, chunk) in output_img.chunks(3).enumerate() {
+            line_buffer.clear();
             let r = (chunk[0].clamp(0.0, 1.0).sqrt() * 255.999) as u8;
             let g = (chunk[1].clamp(0.0, 1.0).sqrt() * 255.999) as u8;
             let b = (chunk[2].clamp(0.0, 1.0).sqrt() * 255.999) as u8;
-            println!("{} {} {}", r, g, b);
+            line_buffer.push_str(&format!("{} {} {} \n", r, g, b));
+            writer.write_all(line_buffer.as_bytes()).unwrap();
         }
 
-        eprint!("\nDone!\n");
+        writer.flush().unwrap();
+        eprint!("{}", "Done! \n".green());
+        eprint!("{}", "\nDone!\n".green());
     }
 
     pub fn get_ray(&self, x: i32, y: i32, rng: &mut SmallRng) -> Ray {

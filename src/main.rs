@@ -4,7 +4,7 @@ use colored::Colorize;
 use raytracer::surface::surfaces::bvh_node::BvhNode;
 
 fn main() {
-    eprintln!("Raytracer by CheetahDoesStuff");
+    eprintln!("Raytracer by {}", "CheetahDoesStuff".blue());
     eprintln!("Features:");
     #[cfg(feature = "threaded")]
     eprintln!("  - Multithreaded (threaded): {}", "ENABLED".green());
@@ -23,5 +23,5 @@ fn main() {
 
     camera.render(world.as_ref());
     let end = SystemTime::now();
-    eprintln!("Took: {:?}", end.duration_since(start).unwrap());
+    eprintln!("Took: {}", format!("{:?}", end.duration_since(start).unwrap()).blue());
 }
