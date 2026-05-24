@@ -40,9 +40,9 @@ impl Sphere {
 
     pub fn get_sphere_uv(pos: Vector3<f32>) -> (f32, f32) {
         let theta = -pos.y.acos();
-        let phi = -pos.z.atan2(pos.x) + PI;
+        let phi = pos.z.atan2(pos.x) + PI;
 
-        (phi / (2.0*PI), theta / PI)
+        (phi / (2.0*PI), 1.0 - theta / PI)
     }
 }
 
