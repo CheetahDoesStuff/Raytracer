@@ -7,6 +7,7 @@ use crate::{
     surface::{surface::{HitRecord, Surface}, texture::Texture, textures::image::ImageTexture},
     utils::{INFINITY, PI, degrees_to_radians, random_f32, random_in_unit_disk}
 };
+use image::{ImageBuffer, RgbImage};
 use nalgebra::{Vector3};
 #[cfg(feature = "threaded")]
 use rayon::prelude::*;
@@ -215,24 +216,19 @@ impl Camera {
 
         eprint!("Writing image to disk... ");
 
-        let header = format!("P3\n{} {}\n255 \n", self.image_width as i32, self.image_height as i32);
-        let file = File::create("rendered.ppm").unwrap();
-        let mut writer = BufWriter::with_capacity(1024 * 1024, file);
-        let mut line_buffer = String::with_capacity(64);
-
-        line_buffer.push_str(&header);
-        writer.write_all(line_buffer.as_bytes()).unwrap();
-
-        for (_, chunk) in output_img.chunks(3).enumerate() {
-            line_buffer.clear();
+        let mut buffer: RgbImage = ImageBuffer::new(self.image_width as u32, self.image_height as u32);
+        for (chunk, pixel) in output_img.chunks(3).zip(buffer.pixels_mut()) {
             let r = (chunk[0].clamp(0.0, 1.0).sqrt() * 255.999) as u8;
             let g = (chunk[1].clamp(0.0, 1.0).sqrt() * 255.999) as u8;
             let b = (chunk[2].clamp(0.0, 1.0).sqrt() * 255.999) as u8;
-            line_buffer.push_str(&format!("{} {} {} \n", r, g, b));
-            writer.write_all(line_buffer.as_bytes()).unwrap();
+            *pixel = image::Rgb([r, g, b]);
         }
 
-        writer.flush().unwrap();
+        match buffer.save("image.png") {
+            Err(e) => eprintln!("Error writing file: {}", e),
+            Ok(()) => println!("Done."),
+        };
+
         eprint!("{}", "Done! \n".green());
         eprint!("{}", "\nDone!\n".green());
     }
