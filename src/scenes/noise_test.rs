@@ -23,7 +23,7 @@ pub fn scene() -> (SurfaceGroup, Camera) {
     let mut world = SurfaceGroup::new();
 
     let texture: Arc<dyn Texture> =
-        Arc::new(NoiseTexture::new());
+        Arc::new(NoiseTexture::new(4.0));
 
     let material: Arc<dyn Material> =
         Arc::new(Lambertian::new(texture));
