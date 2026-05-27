@@ -46,6 +46,19 @@ impl Perlin {
         Perlin::perlin_interpolation(c, u, v, w)
     }
 
+    pub fn turbulence(&self, point: Vector3<f32>, depth: i32) -> f32 {
+        let mut accum = 0.0;
+        let mut mut_point = point.clone();
+        let mut weight = 1.0;
+        for _ in 0..depth {
+            accum += weight * self.noise(mut_point);
+            weight *= 0.5;
+            mut_point *= 2.0;
+        }
+
+        accum.abs()
+    }
+
     pub fn perlin_interpolation(c: [[[Vector3<f32>; 2]; 2]; 2], u: f32, v: f32, w: f32) -> f32 {
         let uu = u * u * (3.0 - 2.0 * u);
         let vv = v * v * (3.0 - 2.0 * v);
