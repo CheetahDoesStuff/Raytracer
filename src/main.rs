@@ -18,7 +18,7 @@ fn main() {
     println!();
 
     let start = SystemTime::now();
-    let (world, camera) = raytracer::scenes::earth::scene();
+    let (world, camera) = raytracer::scenes::noise_test::scene();
     let world = BvhNode::new_from_list(world.into_objects());
 
     camera.render(world.as_ref());

@@ -12,7 +12,7 @@ use nalgebra::{Vector3};
 #[cfg(feature = "threaded")]
 use rayon::prelude::*;
 use rand::rngs::SmallRng;
-use std::{fs::File, io::{self, Write, BufWriter}};
+use std::io::{self, Write};
 use std::sync::Arc;
 use std::sync::atomic::{AtomicI32, Ordering};
 use std::thread;

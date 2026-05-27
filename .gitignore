@@ -1,6 +1,7 @@
 /target
 
-# Stuff ppl might pipe the image to, dont want test images in the codebase
-*.ppm
+image.png
+rendered.png
+output.png
 
 Cargo.lock

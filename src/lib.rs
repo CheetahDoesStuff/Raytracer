@@ -5,3 +5,4 @@ pub mod surface;
 pub mod aabb;
 pub mod utils;
 pub mod scenes;
+pub mod noise;
