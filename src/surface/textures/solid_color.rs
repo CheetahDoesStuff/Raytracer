@@ -13,7 +13,7 @@ impl SolidColorTexture {
 }
 
 impl Texture for SolidColorTexture {
-    fn sample(&self, _u: f32, _v: f32, _pos: Vector3<f32>) -> Color {
+    fn sample(&self, _u: &f32, _v: &f32, _pos: &Vector3<f32>) -> Color {
         self.col
     }
 }

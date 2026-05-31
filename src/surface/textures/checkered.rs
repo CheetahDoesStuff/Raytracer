@@ -33,7 +33,7 @@ impl CheckeredTexture {
 }
 
 impl Texture for CheckeredTexture {
-    fn sample(&self, u: f32, v: f32, pos: nalgebra::Vector3<f32>) -> Color {
+    fn sample(&self, u: &f32, v: &f32, pos: &nalgebra::Vector3<f32>) -> Color {
         let x_int = (self.inv_scale * pos.x).floor() as i32;
         let y_int = (self.inv_scale * pos.y).floor() as i32;
         let z_int = (self.inv_scale * pos.z).floor() as i32;

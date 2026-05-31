@@ -45,7 +45,7 @@ impl Material for Lambertian {
         }
 
         *scattered = Ray::new(rec.p, scatter_direction);
-        *attenuation = self.texture.sample(rec.u, rec.v, rec.p);
+        *attenuation = self.texture.sample(&rec.u, &rec.v, &rec.p);
 
         true
     }

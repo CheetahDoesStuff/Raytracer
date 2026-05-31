@@ -20,7 +20,7 @@ impl ImageTexture {
 }
 
 impl Texture for ImageTexture {
-    fn sample(&self, u: f32, v: f32, _pos: Vector3<f32>) -> Color {
+    fn sample(&self, u: &f32, v: &f32, _pos: &Vector3<f32>) -> Color {
         let w = self.texture.width();
         let h = self.texture.height();
 

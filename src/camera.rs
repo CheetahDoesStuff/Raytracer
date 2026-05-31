@@ -271,7 +271,7 @@ impl Camera {
         let u = (theta + PI) / (2.0 * PI);
         let v = phi / PI;
 
-        self.skybox.sample(u, v, dir)
+        self.skybox.sample(&u, &v, &dir)
     }
 
     fn ray_color(&self, ray: &Ray, world: &&dyn Surface, depth: i32, rng: &mut SmallRng) -> Color {
@@ -280,17 +280,23 @@ impl Camera {
         }
 
         let mut rec = HitRecord::default();
-        if world.hit(ray, Interval::new(0.001, INFINITY), &mut rec) {
-            let mut scattered = Ray::new(Vector3::zeros(), Vector3::zeros());
-            let mut attenuation = Color::default();
-
-            if rec.mat.scatter(ray, &rec, &mut attenuation, &mut scattered, rng) {
-                return attenuation.component_mul(&self.ray_color(&scattered, world, depth - 1, rng));
-            }
-
-            return Color::new(0.0, 0.0, 0.0);
+        if !world.hit(ray, Interval::new(0.001, INFINITY), &mut rec) {
+            return self.sample_skybox(&ray);
         }
 
-        self.sample_skybox(&ray)
+        let u = rec.u as f64;
+        let v = rec.v as f64;
+        let p = rec.p.clone();
+
+        let mut scattered = Ray::new(Vector3::zeros(), Vector3::new(1.0, 0.0, 0.0));
+        let mut attenuation = Color::new(0.0, 0.0, 0.0);
+        let col_emission = rec.mat.emitted(rec.u as f64, rec.v as f64, &rec.p);
+
+        if !rec.mat.scatter(ray, &rec, &mut attenuation, &mut scattered, rng) {
+            return col_emission;
+        }
+
+        let col_scatter = attenuation.component_mul(&self.ray_color(&scattered, world, depth - 1, rng));
+        return col_emission + col_scatter;
     }
 }

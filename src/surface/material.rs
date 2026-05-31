@@ -1,3 +1,4 @@
+use nalgebra::Vector3;
 use rand::rngs::SmallRng;
 
 use crate::{
@@ -6,5 +7,11 @@ use crate::{
 };
 
 pub trait Material: Send + Sync {
-    fn scatter(&self, r_in: &Ray, rec: &HitRecord, attenuation: &mut Color, scattered: &mut Ray, rng: &mut SmallRng) -> bool;
+    fn scatter(&self, _r_in: &Ray, _rec: &HitRecord, _attenuation: &mut Color, _scattered: &mut Ray, _rng: &mut SmallRng) -> bool {
+        return false;
+    }
+
+    fn emitted(&self, _u: f64, _v: f64, _p: &Vector3<f32>) -> Color {
+        Color::new(0.0, 0.0, 0.0)
+    }
 }
