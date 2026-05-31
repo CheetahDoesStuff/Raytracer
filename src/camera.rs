@@ -284,10 +284,6 @@ impl Camera {
             return self.sample_skybox(&ray);
         }
 
-        let u = rec.u as f64;
-        let v = rec.v as f64;
-        let p = rec.p.clone();
-
         let mut scattered = Ray::new(Vector3::zeros(), Vector3::new(1.0, 0.0, 0.0));
         let mut attenuation = Color::new(0.0, 0.0, 0.0);
         let col_emission = rec.mat.emitted(rec.u as f64, rec.v as f64, &rec.p);

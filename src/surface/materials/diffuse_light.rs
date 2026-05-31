@@ -1,11 +1,7 @@
 use std::sync::Arc;
-
-use rand::rngs::SmallRng;
-
 use crate::{
-    ray::{color::Color, ray::Ray},
-    surface::{material::Material, surface::HitRecord, texture::Texture},
-    utils::{random_f32, reflect, refract},
+    ray::color::Color,
+    surface::{material::Material, texture::Texture}
 };
 
 pub struct DiffuseLight {
