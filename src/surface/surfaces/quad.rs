@@ -8,7 +8,7 @@ use crate::{
     ray::ray::Ray,
     surface::{
         material::Material,
-        surface::{HitRecord, Surface},
+        surface::{HitRecord, Surface}, surfaces::surface_group::SurfaceGroup,
     }
 };
 
@@ -81,4 +81,26 @@ impl Surface for Quad {
     fn bounding_box(&self) -> &AABB {
         &self.bbox
     }
+}
+
+
+
+pub fn quad_box(a: Vector3<f32>, b: Vector3<f32>, mat: Arc<dyn Material>) -> SurfaceGroup {
+    let mut sides = SurfaceGroup::new();
+
+    let min = Vector3::new(a.x.min(b.x), a.y.min(b.y), a.z.min(b.z));
+    let max = Vector3::new(a.x.max(b.x), a.y.max(b.y), a.z.max(b.z));
+
+    let dx = Vector3::new(max.x - min.x, 0.0, 0.0);
+    let dy = Vector3::new(0.0, max.y - min.y, 0.0);
+    let dz = Vector3::new(0.0, 0.0, max.z - min.z);
+
+    sides.add(Arc::new(Quad::new(Vector3::new(min.x, min.y, max.z), dx, dy, mat.clone())));
+    sides.add(Arc::new(Quad::new(Vector3::new(max.x, min.y, max.z), -dz, dy, mat.clone())));
+    sides.add(Arc::new(Quad::new(Vector3::new(max.x, min.y, min.z), -dx, dy, mat.clone())));
+    sides.add(Arc::new(Quad::new(Vector3::new(min.x, min.y, min.z), dz, dy, mat.clone())));
+    sides.add(Arc::new(Quad::new(Vector3::new(min.x, max.y, max.z), dx, -dz, mat.clone())));
+    sides.add(Arc::new(Quad::new(Vector3::new(min.x, min.y, max.z), dx, dz, mat.clone())));
+
+    sides
 }

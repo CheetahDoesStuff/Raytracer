@@ -5,3 +5,4 @@ pub mod earth;
 pub mod noise_test;
 pub mod simple_light;
 pub mod quads;
+pub mod cornell;
