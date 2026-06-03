@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["checkered","image","noise","solid_color"]};

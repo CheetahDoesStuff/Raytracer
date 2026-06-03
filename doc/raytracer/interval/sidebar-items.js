@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["INTERVAL_EMPTY","INTERVAL_WORLD"],"struct":["Interval"]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["material","materials","surface","surfaces","texture","textures"]};

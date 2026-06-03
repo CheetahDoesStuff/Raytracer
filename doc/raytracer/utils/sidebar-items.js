@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["INFINITY","PI"],"fn":["degrees_to_radians","random_f32","random_in_unit_disk","random_on_hemisphere","random_unit_vec","random_vec","reflect","refract","vec_near_zero"]};

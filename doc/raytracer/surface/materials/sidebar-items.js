@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["dielectric","diffuse_light","lambertian","metal"]};
