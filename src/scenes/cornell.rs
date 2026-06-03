@@ -12,7 +12,7 @@ use crate::{
             quad::{Quad, quad_box},
             surface_group::SurfaceGroup,
         }, textures::solid_color::SolidColorTexture,
-    },
+    }, transform::Transform,
 };
 
 pub fn scene() -> (SurfaceGroup, Camera) {
@@ -65,8 +65,23 @@ pub fn scene() -> (SurfaceGroup, Camera) {
         white.clone()
     )));
 
-    world.add(Arc::new(quad_box(Vector3::new(130.0, 0.0, 65.0), Vector3::new(295.0, 165.0, 230.0), white.clone())));
-    world.add(Arc::new(quad_box(Vector3::new(265.0, 0.0, 295.0), Vector3::new(430.0, 330.0, 460.0), white.clone())));
+    let box1 = Arc::new(quad_box(
+        Vector3::new(0.0, 0.0, 0.0),
+        Vector3::new(165.0, 330.0, 165.0),
+        white.clone()
+    ));
+    let box1 = Arc::new(Transform::rotate_y(box1, 15.0));
+    let box1 = Arc::new(Transform::translate(box1, 265.0, 0.0, 295.0));
+    world.add(box1);
+    
+    let box2 = Arc::new(quad_box(
+        Vector3::new(0.0, 0.0, 0.0),
+        Vector3::new(165.0, 165.0, 165.0),
+        white.clone()
+    ));
+    let box2 = Arc::new(Transform::rotate_y(box2, -18.0));
+    let box2 = Arc::new(Transform::translate(box2, 130.0, 0.0, 65.0));
+    world.add(box2);
 
     #[cfg(feature = "denoise")]
     let samples = 100;

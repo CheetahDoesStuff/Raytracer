@@ -6,3 +6,4 @@ pub mod aabb;
 pub mod utils;
 pub mod scenes;
 pub mod noise;
+pub mod transform;

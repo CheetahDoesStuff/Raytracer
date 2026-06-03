@@ -117,4 +117,12 @@ impl AABB {
 
         true
     }
+
+    pub fn offset(&self, x: f32, y: f32, z: f32) -> AABB {
+        AABB::new_from_intervals(
+            Interval::new(self.x.min + x, self.x.max + x),
+            Interval::new(self.y.min + y, self.y.max + y),
+            Interval::new(self.z.min + z, self.z.max + z),
+        )
+    }
 }
