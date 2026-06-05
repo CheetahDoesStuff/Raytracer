@@ -3,7 +3,7 @@
 
 Mkay so i wanna start things off with just saying that this project, does not steer that far from the books, and i am sad that i couldnt write more of my own code, but i have gotten really demotivated and will probably move on to the next project.
 
-![image](image.png)
+[image](https://cdn.hackclub.com/019e9952-ac21-7a44-88c4-e614966b3cdc/image.png)
 
 ## Installation
 First of all you need to install oidn (Intel Open Image Denoise). Installing it depends on your OS so youll need to google that one. Do note that if it complains about a missing file, which it did for me, i cant give you an answer on how to fix it as it may vary depending on the system. I will recommend you to google that too.
