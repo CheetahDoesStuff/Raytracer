@@ -34,7 +34,7 @@ cargo run --release --no-default-features --feature FEATURE_TO_ENABLE
 ```
 
 ## Usage
-Now by default this will render a basic cornell box, which can easily be changed, kinda. So im main.rs on line 21, you will find this:
+Now by default this will render a basic cornell box, which can easily be changed, kinda. So in main.rs on line 21, you will find this:
 ```rs
     let (world, camera) = raytracer::scenes::cornell::scene();
 ```
