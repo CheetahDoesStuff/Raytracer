@@ -6,6 +6,8 @@ Mkay so i wanna start things off with just saying that this project, does not st
 ![image](https://cdn.hackclub.com/019e9952-ac21-7a44-88c4-e614966b3cdc/image.png)
 
 ## Installation
+**Note:** This REQUIRES you to modify the code to change what scene it renders / the scene itself, and therefore i cannot compile it and distribute a release, as you wouldnt be able to test out the multiple scenes or make your own!
+
 First of all you need to install oidn (Intel Open Image Denoise). Installing it depends on your OS so youll need to google that one. Do note that if it complains about a missing file, which it did for me, i cant give you an answer on how to fix it as it may vary depending on the system. I will recommend you to google that too.
 
 Now if you are unable to install oidn you can prevent it from being used by disabling it, see features section below.
